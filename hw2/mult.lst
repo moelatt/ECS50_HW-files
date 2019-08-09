@@ -1,0 +1,73 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@,$000
+  2.  000 002104  	lda	M
+  3.  001 200000  	cma#	0
+  4.  002 4A2006  	jlt	jump
+  5.  003 002104  	lda	M
+  6.  004 042101  	sta	x
+  7.  005 40200A  	jmp	jump2
+  8.              
+  9.              
+ 10.              
+ 11.  006 002104  jump:	lda	M
+ 12.  007 182102  	mul	y
+ 13.  008 042101  	sta	x
+ 14.  009 40200A  	jmp	jump2
+ 15.              
+ 16.              
+ 17.  00A 002100  jump2:	lda	i
+ 18.  00B 202101  loops:	cma	x
+ 19.  00C 4B2014  	jge	jump4
+ 20.  00D 002103  	lda	sum
+ 21.  00E 102105  	ada	N
+ 22.  00F 042103  	sta	sum
+ 23.  010 002100  	lda	i
+ 24.  011 100001  	ada#	1
+ 25.  012 042100  	sta	i
+ 26.  013 40200B  	jmp	loops
+ 27.              
+ 28.  014 002104  jump4:	lda	M
+ 29.  015 200000  	cma#	0
+ 30.  016 4D2022  	jgt	jump3
+ 31.  017 002105  	lda	N
+ 32.  018 200000  	cma#	0
+ 33.  019 4D201F  	jgt	jump6
+ 34.  01A 40201B  	jmp	jump5
+ 35.              	
+ 36.              	
+ 37.  01B 002103  jump5:	lda	sum
+ 38.  01C 182102  	mul	y
+ 39.  01D 042106  	sta	result
+ 40.  01E 402025  	jmp	end
+ 41.              	
+ 42.  01F 002104  jump6:	lda 	M
+ 43.  020 200000  	cma#	0
+ 44.  021 4A201B  	jlt	jump5
+ 45.              
+ 46.              	
+ 47.  022 002103  jump3:	lda	sum
+ 48.  023 042106  	sta	result
+ 49.  024 402025  	jmp	end
+ 50.              
+ 51.              	
+ 52.              
+ 53.  025 FFFFFF  end:	hlt
+ 54.              	.equ	@,$100
+ 55.  100 000000  i:	.word	$000
+ 56.  101 000000  x:	.word	$000
+ 57.  102 FFFFFF  y:	.word	-1
+ 58.  103 000000  sum:	.word	$000
+ 59.  104 000006  M:	.word	6
+ 60.  105 FFFFFA  N:	.word	-6
+ 61.  106 000000  result:	.word	$000
+ 62.              
+ 63.              
+ 64.              	
+
+                     SYMBOL TABLE CONTENTS
+
+000025 = END             000100 = I               000006 = JUMP            
+00000A = JUMP2           000022 = JUMP3           000014 = JUMP4           
+00001B = JUMP5           00001F = JUMP6           00000B = LOOPS           
+000104 = M               000105 = N               000106 = RESULT          
+000103 = SUM             000101 = X               000102 = Y               

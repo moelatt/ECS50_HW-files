@@ -1,0 +1,59 @@
+;main program
+	.equ	@,$000
+	.equ	stack,0
+
+	lds#	stack
+	ldf#	0
+
+	psh#	string
+	psh#	strlen
+	psh#	Cstring
+	jsr	swapcase
+	ads#	3
+	hlt
+
+
+string:	.char	'$ fOrGet ThE MiStAke! rEmeMbEr ThE LeSSoN $', strlen
+	.equ	@,$100
+Cstring:	.blkw	15, -1
+i:	.word	0
+
+;subroutine
+	.equ	@,$020
+	.equ	str, 4
+	.equ	length, 3
+	.equ	Cstr, 2
+
+swapcase:	pshf
+	tsf
+	pshx
+	
+	ldx	i
+loop:	ldc* ! str
+	cma#	' '
+	jeq	jump3
+	cma#	'a'
+	jlt	jump1
+	cma#	'z'
+	jgt	jump3
+	sba#	'a' - 'A' 	; lower  to upper case
+	stc* ! Cstr
+	jmp	jump2
+
+jump1:	cma#	'A'
+	jlt	jump3
+	cma#	'Z'
+	jgt	jump3
+	
+	ada#	'a' - 'A'	;upper to lower case
+	stc* ! Cstr
+	jmp	jump2
+
+jump3:	stc* ! Cstr
+	jmp	jump2
+
+jump2:	aoc !	length
+	jlt	loop
+	popx
+	popf
+	rtn

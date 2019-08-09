@@ -1,0 +1,65 @@
+	.equ	@,$000
+	.equ	arr_length, 6
+	ldx	i	; i = 0
+loop1:	cmx#	arr_length	; i ? arr_length
+	jge	end	
+	ldx	i	; load i
+	lda+	x	; ACC = x[i]
+	sta	value	; value = x[i]
+	lda 	value	; value = x[i]
+	ldx 	i	; load i
+	stx	index	; index = i
+	ldx	index	; index = i
+loop2:	cmx#	0	; index ? 0
+	jle	jump1	; index <= 0 go to jump1
+	ldx	index	; load index  
+	stx	j	; j = index
+	ldx	j	; j = index
+	sbx#	1	; subtract 1
+	stx	j	; j = index - 1
+	lda+	x	; x[j]
+	sta	temp	; temp = x[j]
+	lda	temp	; load temp
+	cma	value	; x[j] ? value
+	jle	jump1	; x[j] <= value go to jump1
+	jmp 	jump2	; jump to jump2
+
+
+
+
+jump2:	lda 	temp	;load temp
+	ldx	index	
+	sta+	x	; x[index] = temp
+	lda+	x	; load x[index]
+	dec	index	; index = index - 1
+	ldx	index	; load index
+	jmp	loop2	; jump to loop2
+
+
+
+jump1:	lda 	value	; load value
+	ldx	index	
+	sta+	x	; x[index] = value
+	lda+	x	
+	inc	i	; i = i - 1
+	ldx	i 	; load i
+	jmp	loop1 	; jump to loop1
+	
+
+
+end:	hlt
+i:	.word	0
+index:	.word	0
+value:	.word	0
+temp:	.word	0
+j:	.word	0
+
+
+	.equ	@, $100
+numArr:	.word	arr_length
+x:	.word	100
+	.word	74
+	.word	-144	
+	.word	10022
+	.word	657
+	.word	-33

@@ -1,0 +1,84 @@
+; main program
+	.equ	@,$000
+	.equ	stack, 0
+	.equ	ROW, 2
+	.equ	COLUMN, 4
+
+	lds	stack
+	ldf#	0
+	psh#	Tarr
+	psh#	COLUMN
+	psh#	ROW
+	psh#	arr
+	jsr	transpose
+	ads#	4
+	hlt
+
+; Transpose Matrix subroutine
+
+	.equ	@,$020
+	.equ	A, 2
+	.equ	R, 3
+	.equ	C, 4
+	.equ	T, 5
+
+transpose:	pshf
+	tsf
+	pshx
+	
+Tcloop:	ldx 	i
+	cmx !	C
+	jge	end
+	
+	clr	j
+Trloop:	ldx 	j    
+	cmx !	R
+	jge	Tcloop_end
+	txa
+	mul !	C
+	tax
+	adx 	i
+	stx	index
+	
+	lda& ! A
+	sta  	value
+	lda 	value
+
+	ldx 	i
+	txa
+	mul ! R
+	tax
+	adx 	j
+	stx 	temp
+	ldx 	temp
+	lda& ! T
+
+	lda	value
+	sta& ! T
+	
+	inc	j
+	jmp	Trloop
+
+Tcloop_end:	
+	inc 	i
+	jmp	Tcloop
+
+end:	popx
+	popf
+	rtn
+
+i:	.word 0
+j:	.word	0
+index:	.word 0
+value:	.word	0
+temp:	.word	0
+
+arr:	.word 8
+	.word 9
+	.word 10
+	.word 11
+	.word 12
+	.word 13
+	.word	14
+	.word	15
+Tarr:	.blkw	5

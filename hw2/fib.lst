@@ -1,0 +1,32 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@,$000
+  2.  000 002102  	lda	i
+  3.  001 202103  loop:	cma 	N	; compare to i
+  4.  002 4B200E  	jge  	end	; jump if greater or equal		
+  5.  003 002100  	lda  	fib1	; load fib1
+  6.  004 102101  	ada  	fib2	; fib1 + fib2
+  7.  005 042104  	sta  	FIBON	; store in fib
+  8.  006 002100  	lda  	fib1	; load fib1
+  9.  007 042101  	sta  	fib2	; fib2 = fib1
+ 10.  008 002104  	lda  	FIBON	; load fib
+ 11.  009 042100  	sta  	fib1	; fib1 = fib
+ 12.  00A 002102  	lda  	i
+ 13.  00B 100001  	ada#	$001
+ 14.  00C 042102  	sta	i
+ 15.  00D 402001  	jmp 	loop
+ 16.              
+ 17.  00E FFFFFF  end:	hlt
+ 18.              	.equ	@,$100
+ 19.              
+ 20.              
+ 21.  100 000000  fib1:	.word	$000	; fib1
+ 22.  101 000001  fib2:	.word	$001	; fib2
+ 23.  102 000000  i:	.word	$000	; i
+ 24.  103 000008  N:	.word	$008	; N
+ 25.  104 000000  FIBON:	.word	$000	; result
+
+                     SYMBOL TABLE CONTENTS
+
+00000E = END             000100 = FIB1            000101 = FIB2            
+000104 = FIBON           000102 = I               000001 = LOOP            
+000103 = N               

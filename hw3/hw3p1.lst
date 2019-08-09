@@ -1,0 +1,43 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@,$000
+  2.              	.equ	arr_length, 6
+  3.  000 01210D  	ldx	index	; load index
+  4.  001 210006  loop:	cmx#	arr_length	; index ? arr_length
+  5.  002 4B200C  	jge	end	; index >= arr_length go to end
+  6.  003 004101  	lda+	x	; ACC = x[i]
+  7.  004 204107  	cma+	y	; x[i] ? y[i]
+  8.  005 4C200A  	jle	jump	; x[i] <= y[i] go to jump
+  9.  006 000001  	lda#	1	; ACC = 1
+ 10.  007 1B210D  	inc	index	; index = index + 1
+ 11.  008 01210D  	ldx	index	; load index
+ 12.  009 402001  	jmp	loop	; go to loop
+ 13.              	
+ 14.              
+ 15.  00A 000000  jump:	lda#	0	; ACC = 0
+ 16.  00B 40200C  	jmp	end	; go to loop
+ 17.              
+ 18.  00C FFFFFF  end:	hlt
+ 19.              	.equ	@,$100
+ 20.  100 000006  numArr:	.word arr_length
+ 21.  101 00005F  x:	.word 95
+ 22.  102 0003EA  	.word	1002
+ 23.  103 0000E9  	.word	233
+ 24.  104 FFFF77  	.word	-137
+ 25.  105 0018BC  	.word	6332	
+ 26.  106 FFFEB5  	.word	-331
+ 27.              
+ 28.  107 00005A  y:	.word	90	
+ 29.  108 000066  	.word	102	
+ 30.  109 00006D  	.word	109	
+ 31.  10A FFFA9E  	.word	-1378	
+ 32.  10B 0018BC  	.word	6332	
+ 33.  10C FFF309  	.word	-3319
+ 34.              
+ 35.  10D 000000  index:	.word	0
+ 36.              	
+
+                     SYMBOL TABLE CONTENTS
+
+000006 = ARR_LENGTH      00000C = END             00010D = INDEX           
+00000A = JUMP            000001 = LOOP            000100 = NUMARR          
+000101 = X               000107 = Y               

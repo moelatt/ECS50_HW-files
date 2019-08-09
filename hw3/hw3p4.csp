@@ -1,0 +1,65 @@
+	.equ	@,$000
+	.equ	arr_length, 6
+	
+	ldx#	arr_length	; load arr_length = 6
+	sbx#	1	; subtract 1
+	stx	high	; high = numArr - 1
+loop1:	ldx	low	; load low = 0
+loop3:	cmx	high	; low ? high
+	jgt	jump2	; low > high go to jump2
+	ldx	high	; load high
+	adx	low	; low + high
+	stx	temp	; temp = low + high
+	txa
+	div	division	; divided by 2
+	tax
+	stx	mid	; mid = temp / 2
+	lda+	x	; ACC = x[mid]
+loop2:	cma	searchValue	; x[mid] ? searchValue
+	jeq	jump1	; x[mid] == searchValue go to jump1
+	ldx	mid	; load mid
+	lda+	x	; ACC = x[mid]
+	cma	searchValue	; x[mid] ? searchValue
+	jgt	jump3	; x[mid] > searchValue go to jump3
+	jlt	jump4	; x[mid] < searchValue go to jump2
+
+jump3:	ldx 	mid	; load mid
+	sbx#	1	; subtract 1
+	stx	high	; high = mid - 1
+	cmx	low	; high ? low
+	jlt	jump2	; high < low go to jump2
+	jmp	loop1	; go to loop1
+
+jump4:	ldx	mid	; load mid
+	adx#	1	; add 1
+	stx	low	; low = mid + 1
+	ldx	low	; load low
+	jmp	loop3	; go to loop3
+
+jump1:	lda#	1	; ACC = 1
+	jmp	end	; go to end
+
+jump2:	lda#	0	; ACC = 0
+	jmp	end	; go to end
+
+
+end:	hlt
+high:	.word	0
+mid:	.word	0
+low:	.word	0
+temp:	.word	0
+division:	.word	2
+index:	.word	0
+
+	.equ	@,$100
+searchValue:	.word	-9
+numArr:	.word	arr_length
+x:	.word	-345
+	.word	-98
+	.word	109
+	.word	1555
+	.word	6332
+	.word	33194
+	
+	
+	

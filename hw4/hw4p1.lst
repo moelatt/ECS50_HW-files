@@ -1,0 +1,96 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ; main program
+  2.              	.equ	@,$000
+  3.              	.equ	stack, 0
+  4.              	.equ	ROW, 2
+  5.              	.equ	COLUMN, 4
+  6.              
+  7.  000 022000  	lds	stack
+  8.  001 030000  	ldf#	0
+  9.  002 080050  	psh#	Tarr
+ 10.  003 080004  	psh#	COLUMN
+ 11.  004 080002  	psh#	ROW
+ 12.  005 080048  	psh#	arr
+ 13.  006 412020  	jsr	transpose
+ 14.  007 120004  	ads#	4
+ 15.  008 FFFFFF  	hlt
+ 16.              
+ 17.              ; Transpose Matrix subroutine
+ 18.              
+ 19.              	.equ	@,$020
+ 20.              	.equ	A, 2
+ 21.              	.equ	R, 3
+ 22.              	.equ	C, 4
+ 23.              	.equ	T, 5
+ 24.              
+ 25.  020 FFF012  transpose:	pshf
+ 26.  021 FFF008  	tsf
+ 27.  022 FFF011  	pshx
+ 28.              	
+ 29.  023 012043  Tcloop:	ldx 	i
+ 30.  024 213004  	cmx !	C
+ 31.  025 4B2040  	jge	end
+ 32.              	
+ 33.  026 0A2044  	clr	j
+ 34.  027 012044  Trloop:	ldx 	j    
+ 35.  028 213003  	cmx !	R
+ 36.  029 4B203E  	jge	Tcloop_end
+ 37.  02A FFF003  	txa
+ 38.  02B 183004  	mul !	C
+ 39.  02C FFF000  	tax
+ 40.  02D 112043  	adx 	i
+ 41.  02E 052045  	stx	index
+ 42.              	
+ 43.  02F 009002  	lda& ! A
+ 44.  030 042046  	sta  	value
+ 45.  031 002046  	lda 	value
+ 46.              
+ 47.  032 012043  	ldx 	i
+ 48.  033 FFF003  	txa
+ 49.  034 183003  	mul ! R
+ 50.  035 FFF000  	tax
+ 51.  036 112044  	adx 	j
+ 52.  037 052047  	stx 	temp
+ 53.  038 012047  	ldx 	temp
+ 54.  039 009005  	lda& ! T
+ 55.              
+ 56.  03A 002046  	lda	value
+ 57.  03B 049005  	sta& ! T
+ 58.              	
+ 59.  03C 1B2044  	inc	j
+ 60.  03D 402027  	jmp	Trloop
+ 61.              
+ 62.              Tcloop_end:	
+ 63.  03E 1B2043  	inc 	i
+ 64.  03F 402023  	jmp	Tcloop
+ 65.              
+ 66.  040 FFF014  end:	popx
+ 67.  041 FFF015  	popf
+ 68.  042 FFF040  	rtn
+ 69.              
+ 70.  043 000000  i:	.word 0
+ 71.  044 000000  j:	.word	0
+ 72.  045 000000  index:	.word 0
+ 73.  046 000000  value:	.word	0
+ 74.  047 000000  temp:	.word	0
+ 75.              
+ 76.  048 000008  arr:	.word 8
+ 77.  049 000009  	.word 9
+ 78.  04A 00000A  	.word 10
+ 79.  04B 00000B  	.word 11
+ 80.  04C 00000C  	.word 12
+ 81.  04D 00000D  	.word 13
+ 82.  04E 00000E  	.word	14
+ 83.  04F 00000F  	.word	15
+ 84.  050 FFFFFFFFFFFFFFFF  Tarr:	.blkw	5
+ 85.              
+
+                     SYMBOL TABLE CONTENTS
+
+000002 = A               000048 = ARR             000004 = C               
+000004 = COLUMN          000040 = END             000043 = I               
+000045 = INDEX           000044 = J               000003 = R               
+000002 = ROW             000000 = STACK           000005 = T               
+000050 = TARR            000023 = TCLOOP          00003E = TCLOOP_END      
+000047 = TEMP            000020 = TRANSPOSE       000027 = TRLOOP          
+000046 = VALUE           

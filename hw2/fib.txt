@@ -1,0 +1,14 @@
+Question 3-10
+int main(){
+int fib;
+int fib1 = 0;
+int fib2 = 1;
+int i = 0;
+int num = 9;
+while( i < num){
+   fib = fib1  + fib2;
+   fib2 = fib1;
+   fib1 = fib;
+   i++;
+}
+}

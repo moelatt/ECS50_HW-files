@@ -1,0 +1,72 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@,$000
+  2.  000 002108  	lda	fS
+  3.  001 002102  	lda	cS
+  4.  002 102105  	ada	eS
+  5.  003 042108  	sta	fS
+  6.  004 20003C  	cma#	60
+  7.  005 4D2013  	jgt	jump1
+  8.              
+  9.  006 002107  lp1:	lda	fM
+ 10.  007 102101  	ada	cM
+ 11.  008 102104  	ada	eM
+ 12.  009 042107  	sta	fM
+ 13.  00A 20003C  	cma#	60
+ 14.  00B 4D201B  	jgt	jump2
+ 15.              
+ 16.  00C 002106  lp2:	lda	fH
+ 17.  00D 102100  	ada	cH
+ 18.  00E 102103  	ada	eH
+ 19.  00F 042106  	sta	fH
+ 20.  010 200018  	cma#	24
+ 21.  011 4D2023  	jgt	jump3
+ 22.  012 402027  lp3:	jmp	end
+ 23.              
+ 24.              
+ 25.  013 002107  jump1:	lda	fM
+ 26.  014 002108  	lda	fS
+ 27.  015 19003C  	div#	60
+ 28.  016 042107  	sta	fM
+ 29.  017 002108  	lda	fS
+ 30.  018 1A003C  	mod#	60
+ 31.  019 042108  	sta	fS
+ 32.  01A 402006  	jmp	lp1
+ 33.              
+ 34.              
+ 35.  01B 002106  jump2:	lda 	fH
+ 36.  01C 002107  	lda	fM
+ 37.  01D 19003C  	div#	60
+ 38.  01E 042106  	sta	fH
+ 39.  01F 002107  	lda	fM
+ 40.  020 1A003C  	mod#	60
+ 41.  021 042107  	sta	fM
+ 42.  022 40200C  	jmp	lp2
+ 43.              
+ 44.              
+ 45.  023 002106  jump3:	lda	fH
+ 46.  024 1A0018  	mod#	24
+ 47.  025 042106  	sta	fH
+ 48.  026 402027  	jmp	end
+ 49.  027 FFFFFF  end:	hlt
+ 50.              	.equ	@,$100
+ 51.              
+ 52.  100 000019  cH:	.word 25
+ 53.  101 000002  cM:	.word	2
+ 54.  102 00003A  cS:	.word	58
+ 55.              
+ 56.  103 000019  eH:	.word	25
+ 57.  104 00003B  eM:	.word	59
+ 58.  105 000003  eS:	.word	3
+ 59.              
+ 60.  106 000000  fH:	.word $000
+ 61.  107 000000  fM:	.word $000
+ 62.  108 000000  fS:	.word $000
+
+                     SYMBOL TABLE CONTENTS
+
+000100 = CH              000101 = CM              000102 = CS              
+000103 = EH              000104 = EM              000027 = END             
+000105 = ES              000106 = FH              000107 = FM              
+000108 = FS              000013 = JUMP1           00001B = JUMP2           
+000023 = JUMP3           000006 = LP1             00000C = LP2             
+000012 = LP3             

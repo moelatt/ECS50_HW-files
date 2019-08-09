@@ -1,0 +1,67 @@
+	.equ	@,$000
+	.equ	arr_length, 6	;array size
+	ldx	i	; i = 0
+loop0:	cmx#	arr_length	; i ? arr_length
+	jge	end	; i >= arr_length go to end
+	ldx	i	; load i
+	stx 	min	; min = i
+	ldx	i	; load i
+	adx#	1	; i + 1
+	stx	j	; j = i + 1
+loop1:	cmx#	arr_length	; j ? arr_length
+	jge	jump1	; j >= arr_length go to jump1
+	ldx	j	; load j
+	lda+	x	;ACC = x[j]
+	sta	z	; z = x[j]
+	ldx	min	; load min
+	lda+	x	; x[min]
+	sta	a	; a = x[min]
+	cma	z	; x[min] ? z
+	jle	jump0	; x[min] <= z go to jump0
+
+	ldx	j	; load j
+	stx	min	; min = j
+	ldx 	min	; load min
+	jmp	jump0	; go to jump0
+
+jump0:	inc 	j	; j = j + 1
+	ldx	j	; load j
+	jmp	loop1	; go to loop1
+
+jump1:	ldx	i
+	lda+	x	;ACC = x[i]
+	sta	temp	; temp = x[i]
+	ldx	min	; load min
+	lda+	x	; ACC = x[min]
+	ldx	i	; load i
+	sta+	x	; x[i] = x[min]
+	lda temp	; load temp
+	ldx	min
+	sta+	x	; x[min] = temp
+	inc	i	; i = i + 1
+	ldx	i	; load i
+	jmp	loop0	; go to loop0
+
+jump2:	inc	i	; i = i + 1
+	jmp	loop0	; go to loop0
+	
+
+
+end:	hlt
+
+i:	.word	0
+j:	.word	0
+min:	.word	0
+z:	.word 0
+a:	.word	0
+temp:	.word	0
+
+	.equ	@,$100
+numArr:	.word	arr_length
+x:	.word	100
+	.word	74
+	.word	-144
+	.word	657
+	.word	10022
+	.word	-33
+

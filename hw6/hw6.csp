@@ -1,0 +1,633 @@
+; MOE LATT	ID:915866164
+
+;main program
+	.equ	@,$000
+	.EQU	STACK,0	
+	.EQU 	PUT_NUM, $E00 
+	.EQU 	GET_NUM, $E01
+	.EQU 	PUT_STR, $E05
+	.EQU	PUT_NL,$E06
+	.equ	CRT_DATA,$317
+	.EQU 	KBD_CNTL, $000
+    	.EQU 	KBD_DATA, $001
+    	.EQU 	KBD_FLUSH, $40
+    	.EQU 	TIME_CNTL, $030
+    	.EQU 	TIME_STAT, $030
+    	.EQU 	TIME_VALU, $031
+    	.EQU 	TIME_COUNT, $034    
+    	.EQU 	RESET_READY_BIT, $40
+    	.EQU 	START_AFTER_LOAD, $10
+    	.EQU 	ENABLE_RESET_AND_START, $D0
+    	.EQU 	ENABLE_AND_RESET, $C0
+	
+	.EQU	START,0
+	.EQU	END_KEY,127
+
+	lds#	STACK
+	ldf#	0
+	psh#	start_len
+	psh#	startGrid
+	jsr	PUT_STR
+	ads#	2
+	jsr	PUT_NL
+	psh#	gen_len
+	psh#	startGen
+	jsr	PUT_STR
+	ads#	2
+	jsr	PUT_NL
+
+main:	lda	reload
+	outw	time_valu
+	
+	
+	
+	lda#	reset_ready_bit+ start_after_load
+	outb	time_cntl
+	
+
+
+;original arr	
+	clr	k
+orloop:	ldx	k
+	cmx	row
+	jge	qloop
+
+	clr	j
+ocloop:	ldx	j
+	cmx	col
+	jge	orloop_end
+	ldx	k
+	txa	
+	mul	col
+	tax
+	adx	j
+	stx	len
+	lda+	currGrid
+	sta	value
+	cma#	1
+	jne	jump3
+	lda	live
+	stc	string
+
+jump4:	ldc	string
+	outb	crt_data
+	inc	j
+	jmp	ocloop
+
+jump3:	lda	dead
+	stc	string
+	jmp	jump4
+
+orloop_end:	jsr	put_nl
+	inc	k
+	jmp	orloop
+	jmp	qLoop
+
+;question ask to user
+qLoop:	psh# 	question_len	;user enter
+	psh# 	question
+	jsr 	PUT_STR
+	ads# 	2
+	jsr 	GET_NUM
+	cma# 	0
+	sta	input
+	jeq 	end_program
+	jlt	qloop
+
+	
+		
+countloop:	
+	lda	input
+	cma#	0
+	jle	qloop
+
+	psh#	answer_len	;user  input
+	psh# 	answer
+	jsr  	PUT_STR
+	ads# 	2
+	lda	z
+	ada#	1
+	jsr 	PUT_NUM
+
+	psh#	currGrid
+	psh	ROW
+	psh	COL
+	psh#	nextGrid
+	jsr	nextGen
+	lds#	4
+	
+	clr	k
+grloop:	ldx	k
+	cmx	row
+	jge	jup5
+
+	clr	j
+gcloop:	ldx	j
+	cmx	col
+	jge	grloop_end
+	ldx	k
+	txa	
+	mul	col
+	tax
+	adx	j
+	stx	len
+	lda+	nextGrid
+	sta	value
+	cma#	1
+	jne	jup3
+	lda	live
+	stc	string
+
+jup4:	ldc	string
+	outb	crt_data
+	inc	j
+	jmp	gcloop
+
+jup3:	lda	dead
+	stc	string
+	jmp	jup4
+
+grloop_end:	jsr	put_nl
+	inc	k
+	jmp	grloop
+
+
+jup5:	psh#	nextGrid
+	psh	COL
+	psh	ROW
+	psh#	currGrid
+	jsr	repeatGen
+	ads#	4
+	jmp	hump2
+	
+hump1:	lda	input
+	cma#	0
+	jle	qloop
+	lda#	keyISR
+	sta	$FF8
+	lda#	enable_and_reset
+	outb	KBD_CNTL
+
+	lda# timeISR
+	sta $FFB
+	lda# ENABLE_RESET_AND_START
+	outb TIME_CNTL
+
+	SIE
+MAINLOOP:	NOP
+	JMP	MAINLOOP
+
+
+
+
+;key input
+keyISR:	psha
+	lda# 	0
+	outb 	KBD_CNTL
+	inb 	KBD_DATA
+	cma#	START
+	jge	countloop 	
+	jmp 	countloop
+	popa
+	irtn		
+
+	
+end_program:	psh#	endProgram_len
+	psh#	endProgram
+	jsr	PUT_STR
+	ads#	2
+	hlt	
+	
+
+; repeatGen suroutine 
+	.equ	curr,2
+	.equ	ro,3
+	.equ	co,4
+	.equ	next,5
+
+repeatGen:	pshf
+	tsf
+	psha
+	pshx
+
+	clr	n
+reLoop:	ldx	n
+	cmx !	ro
+	jge	return
+	
+	clr	m
+celoop:	ldx	m
+	cmx !	co
+	jge	reloop_end
+	ldx	n
+	txa
+	mul !	co
+	tax
+	adx	m
+	lda& ! next
+	sta& ! curr
+	inc	m
+	jmp	celoop
+
+reloop_end:	inc	n
+	jmp	reloop
+
+return:	popx
+	popa
+	popf
+	rtn
+
+
+
+;Time Subroutin
+timeISR:	
+loop:	inb	TIME_STAT
+	jge	loop
+	lda#	reset_ready_bit
+	outb	time_cntl
+
+
+	jmp	countloop
+hump2:	lda	input
+	cma#	0
+	jle	qloop
+	dec	input
+	inc	z	
+	jmp	hump1
+
+startGrid:	.char 'Here is the starting grid', start_len
+startGen:	.char	'Generation: 0',gen_len
+question:	.char 'How many generation would you like to print(enter 0 to end)?', question_len
+answer:	.char 'Generation: ', answer_len
+endProgram:	.char	'End of program.',endProgram_len
+x:	.word	
+input:	.word
+temp:	.word	0
+RELOAD:	.word	50000
+
+
+
+
+
+
+currGrid:	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 1
+	.word 1
+	.word 1
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+	.word 0
+
+
+ROW:	.word	6
+COL:	.word	7
+i:	.word	0
+j:	.word	0
+k:	.word	0
+h:	.word	0
+a:	.word	0
+y:	.word	0
+z:	.word	0
+m:	.word	0
+n:	.word	0
+count:	.word	0
+value:	.word	0
+val:	.word	0
+ind:	.word 0
+index:	.word	0
+live:	.word	'*'
+dead:	.word	'.'
+len:	.word
+string:	.blkw	150
+strlen:	.blkw	1
+	
+nextGrid:	.blkw	150
+
+
+;nextGen subroutine
+	.equ	@,$400
+	.equ	cGrid,5
+	.equ	rows, 4
+	.equ	cols, 3
+	.equ	nGrid,2
+nextGen:	pshf
+	tsf
+	pshx
+	clr	i
+rloop:	ldx	i
+	cmx !	rows	
+	jge	end
+	
+	clr	j
+cloop:	ldx	j
+	cmx !	cols
+	jge	rloop_end
+	clr	count
+	ldx	i
+	sbx#	1
+	txa
+	mul !	cols
+	tax
+	adx	j
+	sbx#	1
+	stx	ind
+	lda& ! cGrid
+	sta	val
+	ldx	i
+	cmx#	0
+	jeq	jump1
+	ldx	j
+	cmx#	0
+	jeq	jump1
+	lda	val
+	cma#	1
+	jne	jump1
+	lda	count
+	ada#	1
+	sta	count
+
+jump1:	ldx	i
+	txa
+	mul !	cols
+	tax
+	adx	j
+	adx#	1
+	stx	ind
+	lda& ! cGrid
+	sta	val
+	lda ! cols
+	tax
+	sbx#	1
+	stx	ind
+	cmx	j
+	jeq	jump2
+	lda	val
+	cma#	1
+	jne	jump2
+	lda	count
+	ada#	1
+	sta	count
+	
+
+jump2:	ldx	i
+	sbx#	1
+	txa
+	mul ! cols
+	tax
+	adx	j
+	stx	ind
+	lda& ! cGrid
+	sta	val
+	ldx	i
+	cmx#	0
+	jeq	jmp3
+	lda	val
+	cma#	1
+	jne	jmp3
+	lda	count
+	ada#	1
+	sta	count
+
+jmp3:	ldx	i
+	sbx#	1
+	txa
+	mul ! cols
+	tax
+	adx	j
+	adx#	1
+	stx	ind
+	lda& ! cGrid
+	sta	val
+	ldx	i
+	cmx#	0
+	jeq	jmp4
+	lda ! cols
+	tax
+	sbx#	1
+	cmx	j
+	jeq	jmp4
+	lda	val
+	cma#	1
+	jne	jmp4
+	lda	count
+	ada#	1
+	sta	count
+
+jmp4:	ldx	i
+	txa
+	mul ! cols
+	tax
+	adx	j
+	sbx#	1
+	stx	ind
+	lda& ! cGrid
+	sta	val
+	ldx	j
+	cmx#	0
+	jeq	jump5
+	lda	val
+	cma#	1
+	jne	jump5
+	lda	count
+	ada#	1
+	sta	count
+	
+jump5:	ldx	i
+	adx#	1
+	txa
+	mul ! cols
+	tax
+	adx	j
+	sbx#	1
+	stx	ind
+	lda& ! cGrid
+	sta	val
+	lda ! rows
+	tax
+	sbx#	1
+	cmx	i
+	jeq	jump6
+	ldx	j
+	cmx#	0
+	jeq	jump6
+	lda	val
+	cma#	1
+	jne	jump6
+	lda	count
+	ada#	1
+	sta	count
+	
+jump6:	ldx	i
+	adx#	1
+	txa
+	mul ! cols
+	tax
+	adx	j
+	adx#	1
+	stx	ind
+	lda& ! cGrid
+	sta	val
+	lda !	rows
+	tax
+	sbx#	1
+	cmx	i
+	jeq	jump7
+	lda ! cols
+	tax
+	sbx#	1
+	cmx	j
+	jeq	jump7
+	lda	val
+	cma#	1
+	jne	jump7
+	lda	count
+	ada#	1
+	sta	count
+
+jump7:	ldx	i
+	adx#	1
+	txa
+	mul ! cols
+	tax
+	adx	j
+	stx	ind
+	lda& ! cGrid
+	sta	val
+	lda ! rows
+	tax
+	sbx#	1
+	cmx	i
+	jeq	jump8
+	lda	val
+	cma#	1
+	jne	jump8
+	lda	count
+	ada#	1
+	sta	count
+
+jump8:	ldx	i	; rule 1
+	txa
+	mul !	cols
+	tax
+	adx	j
+	stx	index
+	lda& ! cGrid
+	sta	val
+	cma#	1
+	jne	jump9
+	lda	count
+	cma#	2
+	jge	jump9
+	ldx	index
+	lda& ! nGrid
+	lda#	0
+	sta& ! nGrid
+	jmp	cloop_end
+
+jump9:	ldx	index	;rule 2
+	lda& ! cGrid
+	cma#	1
+	jne	jump10
+	lda	count
+	cma#	2
+	jne	equal
+	ldx	index
+	lda& ! nGrid
+	lda#	1
+	sta& ! nGrid
+	jmp	cloop_end
+
+
+equal:	cma#	3	
+	jne	jump10
+	ldx	index
+	lda& ! nGrid
+	lda#	1
+	sta& ! nGrid
+	jmp	cloop_end
+
+jump10:	ldx	index	;rule 3
+	lda& ! cGrid
+	cma#	1
+	jne	jump11
+	lda 	count
+	cma#	3
+	jle	jump11
+	ldx	index
+	lda& ! nGrid
+	lda#	0
+	sta& ! nGrid
+	jmp	cloop_end
+
+jump11:	ldx	index	;rule 4
+	lda& ! cGrid
+	cma#	0
+	jne	jump12
+	lda	count
+	cma#	3
+	jne	jump12
+	ldx	index
+	lda& ! nGrid
+	lda#	1
+	sta& ! nGrid
+	jmp	cloop_end
+
+jump12:	ldx	index
+	lda& ! nGrid
+	lda#	0
+	sta& ! nGrid
+	jmp	cloop_end
+cloop_end:	inc	j
+	jmp	cloop
+
+rloop_end:	inc	i
+	jmp	rloop
+
+end:
+	popx
+	popf
+	rtn
+
+
+
+			

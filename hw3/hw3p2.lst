@@ -1,0 +1,77 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              	.equ	@,$000
+  2.              	.equ	arr_length, 6	;array size
+  3.  000 012029  	ldx	i	; i = 0
+  4.  001 210006  loop0:	cmx#	arr_length	; i ? arr_length
+  5.  002 4B2028  	jge	end	; i >= arr_length go to end
+  6.  003 012029  	ldx	i	; load i
+  7.  004 05202B  	stx 	min	; min = i
+  8.  005 012029  	ldx	i	; load i
+  9.  006 110001  	adx#	1	; i + 1
+ 10.  007 05202A  	stx	j	; j = i + 1
+ 11.  008 210006  loop1:	cmx#	arr_length	; j ? arr_length
+ 12.  009 4B2019  	jge	jump1	; j >= arr_length go to jump1
+ 13.  00A 01202A  	ldx	j	; load j
+ 14.  00B 004101  	lda+	x	;ACC = x[j]
+ 15.  00C 04202C  	sta	z	; z = x[j]
+ 16.  00D 01202B  	ldx	min	; load min
+ 17.  00E 004101  	lda+	x	; x[min]
+ 18.  00F 04202D  	sta	a	; a = x[min]
+ 19.  010 20202C  	cma	z	; x[min] ? z
+ 20.  011 4C2016  	jle	jump0	; x[min] <= z go to jump0
+ 21.              
+ 22.  012 01202A  	ldx	j	; load j
+ 23.  013 05202B  	stx	min	; min = j
+ 24.  014 01202B  	ldx 	min	; load min
+ 25.  015 402016  	jmp	jump0	; go to jump0
+ 26.              
+ 27.  016 1B202A  jump0:	inc 	j	; j = j + 1
+ 28.  017 01202A  	ldx	j	; load j
+ 29.  018 402008  	jmp	loop1	; go to loop1
+ 30.              
+ 31.  019 012029  jump1:	ldx	i
+ 32.  01A 004101  	lda+	x	;ACC = x[i]
+ 33.  01B 04202E  	sta	temp	; temp = x[i]
+ 34.  01C 01202B  	ldx	min	; load min
+ 35.  01D 004101  	lda+	x	; ACC = x[min]
+ 36.  01E 012029  	ldx	i	; load i
+ 37.  01F 044101  	sta+	x	; x[i] = x[min]
+ 38.  020 00202E  	lda temp	; load temp
+ 39.  021 01202B  	ldx	min
+ 40.  022 044101  	sta+	x	; x[min] = temp
+ 41.  023 1B2029  	inc	i	; i = i + 1
+ 42.  024 012029  	ldx	i	; load i
+ 43.  025 402001  	jmp	loop0	; go to loop0
+ 44.              
+ 45.  026 1B2029  jump2:	inc	i	; i = i + 1
+ 46.  027 402001  	jmp	loop0	; go to loop0
+ 47.              	
+ 48.              
+ 49.              
+ 50.  028 FFFFFF  end:	hlt
+ 51.              
+ 52.  029 000000  i:	.word	0
+ 53.  02A 000000  j:	.word	0
+ 54.  02B 000000  min:	.word	0
+ 55.  02C 000000  z:	.word 0
+ 56.  02D 000000  a:	.word	0
+ 57.  02E 000000  temp:	.word	0
+ 58.              
+ 59.              	.equ	@,$100
+ 60.  100 000006  numArr:	.word	arr_length
+ 61.  101 000064  x:	.word	100
+ 62.  102 00004A  	.word	74
+ 63.  103 FFFF70  	.word	-144
+ 64.  104 000291  	.word	657
+ 65.  105 002726  	.word	10022
+ 66.  106 FFFFDF  	.word	-33
+ 67.              
+ 68.              
+
+                     SYMBOL TABLE CONTENTS
+
+00002D = A               000006 = ARR_LENGTH      000028 = END             
+000029 = I               00002A = J               000016 = JUMP0           
+000019 = JUMP1           000026 = JUMP2           000001 = LOOP0           
+000008 = LOOP1           00002B = MIN             000100 = NUMARR          
+00002E = TEMP            000101 = X               00002C = Z               

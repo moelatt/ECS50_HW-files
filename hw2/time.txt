@@ -1,0 +1,40 @@
+#include<stdio.h>
+
+int main() {
+
+int hour, minutes, seconds;
+int hour1 = 17;
+int hour2 = 9;
+int minutes1 = 34;
+int seconds1 = 56;
+int minutes2 = 48;
+int seconds2 = 17;
+
+
+seconds = hour = minutes = 0;
+
+seconds = seconds1 + seconds2;
+
+	if(seconds > 60) {
+		minutes = seconds / 60;
+		seconds = seconds % 60;
+	}
+
+minutes = minutes + minutes1 + minutes2;
+
+	if(minutes > 60) {
+		hour = minutes / 60;
+		minutes = minutes % 60;
+	}
+
+hour = hour + hour1 + hour2;
+
+	if(hour > 24) {
+		hour = hour % 24;
+	}
+printf("Current time  %d:%d:%d", hour1, minutes1, seconds1);
+printf("\n\nElapsed time  %d:%d:%d", hour2, minutes2, seconds2);
+printf("\n\nFuture time  ");
+printf("%d:%d:%d\n", hour, minutes, seconds);
+
+}

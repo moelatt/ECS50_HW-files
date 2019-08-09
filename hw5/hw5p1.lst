@@ -1,0 +1,82 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ;main program
+  2.              	.equ	@,$000
+  3.              	.equ	stack,0
+  4.              
+  5.  000 020000  	lds#	stack
+  6.  001 030000  	ldf#	0
+  7.              
+  8.  002 080008  	psh#	string
+  9.  003 08002B  	psh#	strlen
+ 10.  004 080100  	psh#	Cstring
+ 11.  005 412020  	jsr	swapcase
+ 12.  006 120003  	ads#	3
+ 13.  007 FFFFFF  	hlt
+ 14.              
+ 15.              
+ 16.  008 242066  string:	.char	'$ fOrGet ThE MiStAke! rEmeMbEr ThE LeSSoN $', strlen
+      009 4F7247
+      00A 657420
+      00B 546845
+      00C 204D69
+      00D 537441
+      00E 6B6521
+      00F 207245
+      010 6D654D
+      011 624572
+      012 205468
+      013 45204C
+      014 655353
+      015 6F4E20
+      016 242020
+ 17.              	.equ	@,$100
+ 18.  100 FFFFFF  Cstring:	.blkw	15, -1
+ 19.  10F 000000  i:	.word	0
+ 20.              
+ 21.              ;subroutine
+ 22.              	.equ	@,$020
+ 23.              	.equ	str, 4
+ 24.              	.equ	length, 3
+ 25.              	.equ	Cstr, 2
+ 26.              
+ 27.  020 FFF012  swapcase:	pshf
+ 28.  021 FFF008  	tsf
+ 29.  022 FFF011  	pshx
+ 30.              	
+ 31.  023 01210F  	ldx	i
+ 32.  024 507004  loop:	ldc* ! str
+ 33.  025 200020  	cma#	' '
+ 34.  026 482035  	jeq	jump3
+ 35.  027 200061  	cma#	'a'
+ 36.  028 4A202E  	jlt	jump1
+ 37.  029 20007A  	cma#	'z'
+ 38.  02A 4D2035  	jgt	jump3
+ 39.  02B 140020  	sba#	'a' - 'A' 	; lower  to upper case
+ 40.  02C 517002  	stc* ! Cstr
+ 41.  02D 402037  	jmp	jump2
+ 42.              
+ 43.  02E 200041  jump1:	cma#	'A'
+ 44.  02F 4A2035  	jlt	jump3
+ 45.  030 20005A  	cma#	'Z'
+ 46.  031 4D2035  	jgt	jump3
+ 47.              	
+ 48.  032 100020  	ada#	'a' - 'A'	;upper to lower case
+ 49.  033 517002  	stc* ! Cstr
+ 50.  034 402037  	jmp	jump2
+ 51.              
+ 52.  035 517002  jump3:	stc* ! Cstr
+ 53.  036 402037  	jmp	jump2
+ 54.              
+ 55.  037 603003  jump2:	aoc !	length
+ 56.  038 4A2024  	jlt	loop
+ 57.  039 FFF014  	popx
+ 58.  03A FFF015  	popf
+ 59.  03B FFF040  	rtn
+
+                     SYMBOL TABLE CONTENTS
+
+000002 = CSTR            000100 = CSTRING         00010F = I               
+00002E = JUMP1           000037 = JUMP2           000035 = JUMP3           
+000003 = LENGTH          000024 = LOOP            000000 = STACK           
+000004 = STR             000008 = STRING          00002B = STRLEN          
+000020 = SWAPCASE        

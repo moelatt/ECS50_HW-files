@@ -1,0 +1,712 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ; MOE LATT	ID:915866164
+  2.              
+  3.              ;main program
+  4.              	.equ	@,$000
+  5.              	.EQU	STACK,0	
+  6.              	.EQU 	PUT_NUM, $E00 
+  7.              	.EQU 	GET_NUM, $E01
+  8.              	.EQU 	PUT_STR, $E05
+  9.              	.EQU	PUT_NL,$E06
+ 10.              	.equ	CRT_DATA,$317
+ 11.              	.EQU 	KBD_CNTL, $000
+ 12.                  	.EQU 	KBD_DATA, $001
+ 13.                  	.EQU 	KBD_FLUSH, $40
+ 14.                  	.EQU 	TIME_CNTL, $030
+ 15.                  	.EQU 	TIME_STAT, $030
+ 16.                  	.EQU 	TIME_VALU, $031
+ 17.                  	.EQU 	TIME_COUNT, $034    
+ 18.                  	.EQU 	RESET_READY_BIT, $40
+ 19.                  	.EQU 	START_AFTER_LOAD, $10
+ 20.                  	.EQU 	ENABLE_RESET_AND_START, $D0
+ 21.                  	.EQU 	ENABLE_AND_RESET, $C0
+ 22.              	
+ 23.              	.EQU	START,0
+ 24.              	.EQU	END_KEY,127
+ 25.              
+ 26.  000 020000  	lds#	STACK
+ 27.  001 030000  	ldf#	0
+ 28.  002 080019  	psh#	start_len
+ 29.  003 0800AF  	psh#	startGrid
+ 30.  004 412E05  	jsr	PUT_STR
+ 31.  005 120002  	ads#	2
+ 32.  006 412E06  	jsr	PUT_NL
+ 33.  007 08000D  	psh#	gen_len
+ 34.  008 0800B8  	psh#	startGen
+ 35.  009 412E05  	jsr	PUT_STR
+ 36.  00A 120002  	ads#	2
+ 37.  00B 412E06  	jsr	PUT_NL
+ 38.              
+ 39.  00C 0020DD  main:	lda	reload
+ 40.  00D 732031  	outw	time_valu
+ 41.              	
+ 42.              	
+ 43.              	
+ 44.  00E 000050  	lda#	reset_ready_bit+ start_after_load
+ 45.  00F 712030  	outb	time_cntl
+ 46.              	
+ 47.              
+ 48.              
+ 49.              ;original arr	
+ 50.  010 0A210C  	clr	k
+ 51.  011 01210C  orloop:	ldx	k
+ 52.  012 212108  	cmx	row
+ 53.  013 4B202F  	jge	qloop
+ 54.              
+ 55.  014 0A210B  	clr	j
+ 56.  015 01210B  ocloop:	ldx	j
+ 57.  016 212109  	cmx	col
+ 58.  017 4B202B  	jge	orloop_end
+ 59.  018 01210C  	ldx	k
+ 60.  019 FFF003  	txa	
+ 61.  01A 182109  	mul	col
+ 62.  01B FFF000  	tax
+ 63.  01C 11210B  	adx	j
+ 64.  01D 05211A  	stx	len
+ 65.  01E 0040DE  	lda+	currGrid
+ 66.  01F 042114  	sta	value
+ 67.  020 200001  	cma#	1
+ 68.  021 492028  	jne	jump3
+ 69.  022 002118  	lda	live
+ 70.  023 51211B  	stc	string
+ 71.              
+ 72.  024 50211B  jump4:	ldc	string
+ 73.  025 712317  	outb	crt_data
+ 74.  026 1B210B  	inc	j
+ 75.  027 402015  	jmp	ocloop
+ 76.              
+ 77.  028 002119  jump3:	lda	dead
+ 78.  029 51211B  	stc	string
+ 79.  02A 402024  	jmp	jump4
+ 80.              
+ 81.  02B 412E06  orloop_end:	jsr	put_nl
+ 82.  02C 1B210C  	inc	k
+ 83.  02D 402011  	jmp	orloop
+ 84.  02E 40202F  	jmp	qLoop
+ 85.              
+ 86.              ;question ask to user
+ 87.  02F 08003C  qLoop:	psh# 	question_len	;user enter
+ 88.  030 0800BD  	psh# 	question
+ 89.  031 412E05  	jsr 	PUT_STR
+ 90.  032 120002  	ads# 	2
+ 91.  033 412E01  	jsr 	GET_NUM
+ 92.  034 200000  	cma# 	0
+ 93.  035 0420DB  	sta	input
+ 94.  036 482084  	jeq 	end_program
+ 95.  037 4A202F  	jlt	qloop
+ 96.              
+ 97.              	
+ 98.              		
+ 99.              countloop:	
+100.  038 0020DB  	lda	input
+101.  039 200000  	cma#	0
+102.  03A 4C202F  	jle	qloop
+103.              
+104.  03B 08000C  	psh#	answer_len	;user  input
+105.  03C 0800D1  	psh# 	answer
+106.  03D 412E05  	jsr  	PUT_STR
+107.  03E 120002  	ads# 	2
+108.  03F 002110  	lda	z
+109.  040 100001  	ada#	1
+110.  041 412E00  	jsr 	PUT_NUM
+111.              
+112.  042 0800DE  	psh#	currGrid
+113.  043 082108  	psh	ROW
+114.  044 082109  	psh	COL
+115.  045 0801B2  	psh#	nextGrid
+116.  046 412400  	jsr	nextGen
+117.  047 020004  	lds#	4
+118.              	
+119.  048 0A210C  	clr	k
+120.  049 01210C  grloop:	ldx	k
+121.  04A 212108  	cmx	row
+122.  04B 4B2066  	jge	jup5
+123.              
+124.  04C 0A210B  	clr	j
+125.  04D 01210B  gcloop:	ldx	j
+126.  04E 212109  	cmx	col
+127.  04F 4B2063  	jge	grloop_end
+128.  050 01210C  	ldx	k
+129.  051 FFF003  	txa	
+130.  052 182109  	mul	col
+131.  053 FFF000  	tax
+132.  054 11210B  	adx	j
+133.  055 05211A  	stx	len
+134.  056 0041B2  	lda+	nextGrid
+135.  057 042114  	sta	value
+136.  058 200001  	cma#	1
+137.  059 492060  	jne	jup3
+138.  05A 002118  	lda	live
+139.  05B 51211B  	stc	string
+140.              
+141.  05C 50211B  jup4:	ldc	string
+142.  05D 712317  	outb	crt_data
+143.  05E 1B210B  	inc	j
+144.  05F 40204D  	jmp	gcloop
+145.              
+146.  060 002119  jup3:	lda	dead
+147.  061 51211B  	stc	string
+148.  062 40205C  	jmp	jup4
+149.              
+150.  063 412E06  grloop_end:	jsr	put_nl
+151.  064 1B210C  	inc	k
+152.  065 402049  	jmp	grloop
+153.              
+154.              
+155.  066 0801B2  jup5:	psh#	nextGrid
+156.  067 082109  	psh	COL
+157.  068 082108  	psh	ROW
+158.  069 0800DE  	psh#	currGrid
+159.  06A 412089  	jsr	repeatGen
+160.  06B 120004  	ads#	4
+161.  06C 4020A9  	jmp	hump2
+162.              	
+163.  06D 0020DB  hump1:	lda	input
+164.  06E 200000  	cma#	0
+165.  06F 4C202F  	jle	qloop
+166.  070 00007B  	lda#	keyISR
+167.  071 042FF8  	sta	$FF8
+168.  072 0000C0  	lda#	enable_and_reset
+169.  073 712000  	outb	KBD_CNTL
+170.              
+171.  074 0000A4  	lda# timeISR
+172.  075 042FFB  	sta $FFB
+173.  076 0000D0  	lda# ENABLE_RESET_AND_START
+174.  077 712030  	outb TIME_CNTL
+175.              
+176.  078 FFF032  	SIE
+177.  079 FFF038  MAINLOOP:	NOP
+178.  07A 402079  	JMP	MAINLOOP
+179.              
+180.              
+181.              
+182.              
+183.              ;key input
+184.  07B FFF010  keyISR:	psha
+185.  07C 000000  	lda# 	0
+186.  07D 712000  	outb 	KBD_CNTL
+187.  07E 702001  	inb 	KBD_DATA
+188.  07F 200000  	cma#	START
+189.  080 4B2038  	jge	countloop 	
+190.  081 402038  	jmp 	countloop
+191.  082 FFF013  	popa
+192.  083 FFF041  	irtn		
+193.              
+194.              	
+195.  084 08000F  end_program:	psh#	endProgram_len
+196.  085 0800D5  	psh#	endProgram
+197.  086 412E05  	jsr	PUT_STR
+198.  087 120002  	ads#	2
+199.  088 FFFFFF  	hlt	
+200.              	
+201.              
+202.              ; repeatGen suroutine 
+203.              	.equ	curr,2
+204.              	.equ	ro,3
+205.              	.equ	co,4
+206.              	.equ	next,5
+207.              
+208.  089 FFF012  repeatGen:	pshf
+209.  08A FFF008  	tsf
+210.  08B FFF010  	psha
+211.  08C FFF011  	pshx
+212.              
+213.  08D 0A2112  	clr	n
+214.  08E 012112  reLoop:	ldx	n
+215.  08F 213003  	cmx !	ro
+216.  090 4B20A0  	jge	return
+217.              	
+218.  091 0A2111  	clr	m
+219.  092 012111  celoop:	ldx	m
+220.  093 213004  	cmx !	co
+221.  094 4B209E  	jge	reloop_end
+222.  095 012112  	ldx	n
+223.  096 FFF003  	txa
+224.  097 183004  	mul !	co
+225.  098 FFF000  	tax
+226.  099 112111  	adx	m
+227.  09A 009005  	lda& ! next
+228.  09B 049002  	sta& ! curr
+229.  09C 1B2111  	inc	m
+230.  09D 402092  	jmp	celoop
+231.              
+232.  09E 1B2112  reloop_end:	inc	n
+233.  09F 40208E  	jmp	reloop
+234.              
+235.  0A0 FFF014  return:	popx
+236.  0A1 FFF013  	popa
+237.  0A2 FFF015  	popf
+238.  0A3 FFF040  	rtn
+239.              
+240.              
+241.              
+242.              ;Time Subroutin
+243.              timeISR:	
+244.  0A4 702030  loop:	inb	TIME_STAT
+245.  0A5 4B20A4  	jge	loop
+246.  0A6 000040  	lda#	reset_ready_bit
+247.  0A7 712030  	outb	time_cntl
+248.              
+249.              
+250.  0A8 402038  	jmp	countloop
+251.  0A9 0020DB  hump2:	lda	input
+252.  0AA 200000  	cma#	0
+253.  0AB 4C202F  	jle	qloop
+254.  0AC 1C20DB  	dec	input
+255.  0AD 1B2110  	inc	z	
+256.  0AE 40206D  	jmp	hump1
+257.              
+258.  0AF 486572  startGrid:	.char 'Here is the starting grid', start_len
+      0B0 652069
+      0B1 732074
+      0B2 686520
+      0B3 737461
+      0B4 727469
+      0B5 6E6720
+      0B6 677269
+      0B7 642020
+259.  0B8 47656E  startGen:	.char	'Generation: 0',gen_len
+      0B9 657261
+      0BA 74696F
+      0BB 6E3A20
+      0BC 302020
+260.  0BD 486F77  question:	.char 'How many generation would you like to print(enter 0 to end)?', question_len
+      0BE 206D61
+      0BF 6E7920
+      0C0 67656E
+      0C1 657261
+      0C2 74696F
+      0C3 6E2077
+      0C4 6F756C
+      0C5 642079
+      0C6 6F7520
+      0C7 6C696B
+      0C8 652074
+      0C9 6F2070
+      0CA 72696E
+      0CB 742865
+      0CC 6E7465
+      0CD 722030
+      0CE 20746F
+      0CF 20656E
+      0D0 64293F
+261.  0D1 47656E  answer:	.char 'Generation: ', answer_len
+      0D2 657261
+      0D3 74696F
+      0D4 6E3A20
+262.  0D5 456E64  endProgram:	.char	'End of program.',endProgram_len
+      0D6 206F66
+      0D7 207072
+      0D8 6F6772
+      0D9 616D2E
+263.  0DA 000000  x:	.word	
+264.  0DB 000000  input:	.word
+265.  0DC 000000  temp:	.word	0
+266.  0DD 00C350  RELOAD:	.word	50000
+267.              
+268.              
+269.              
+270.              
+271.              
+272.              
+273.  0DE 000000  currGrid:	.word 0
+274.  0DF 000000  	.word 0
+275.  0E0 000000  	.word 0
+276.  0E1 000000  	.word 0
+277.  0E2 000000  	.word 0
+278.  0E3 000000  	.word 0
+279.  0E4 000000  	.word 0
+280.              
+281.  0E5 000000  	.word 0
+282.  0E6 000000  	.word 0
+283.  0E7 000001  	.word 1
+284.  0E8 000000  	.word 0
+285.  0E9 000000  	.word 0
+286.  0EA 000000  	.word 0
+287.  0EB 000000  	.word 0
+288.              
+289.  0EC 000000  	.word 0
+290.  0ED 000000  	.word 0
+291.  0EE 000000  	.word 0
+292.  0EF 000001  	.word 1
+293.  0F0 000000  	.word 0
+294.  0F1 000000  	.word 0
+295.  0F2 000000  	.word 0
+296.              
+297.  0F3 000000  	.word 0
+298.  0F4 000001  	.word 1
+299.  0F5 000001  	.word 1
+300.  0F6 000001  	.word 1
+301.  0F7 000000  	.word 0
+302.  0F8 000000  	.word 0
+303.  0F9 000000  	.word 0
+304.              
+305.  0FA 000000  	.word 0
+306.  0FB 000000  	.word 0
+307.  0FC 000000  	.word 0
+308.  0FD 000000  	.word 0
+309.  0FE 000000  	.word 0
+310.  0FF 000000  	.word 0
+311.  100 000000  	.word 0
+312.              
+313.  101 000000  	.word 0
+314.  102 000000  	.word 0
+315.  103 000000  	.word 0
+316.  104 000000  	.word 0
+317.  105 000000  	.word 0
+318.  106 000000  	.word 0
+319.  107 000000  	.word 0
+320.              
+321.              
+322.  108 000006  ROW:	.word	6
+323.  109 000007  COL:	.word	7
+324.  10A 000000  i:	.word	0
+325.  10B 000000  j:	.word	0
+326.  10C 000000  k:	.word	0
+327.  10D 000000  h:	.word	0
+328.  10E 000000  a:	.word	0
+329.  10F 000000  y:	.word	0
+330.  110 000000  z:	.word	0
+331.  111 000000  m:	.word	0
+332.  112 000000  n:	.word	0
+333.  113 000000  count:	.word	0
+334.  114 000000  value:	.word	0
+335.  115 000000  val:	.word	0
+336.  116 000000  ind:	.word 0
+337.  117 000000  index:	.word	0
+338.  118 00002A  live:	.word	'*'
+339.  119 00002E  dead:	.word	'.'
+340.  11A 000000  len:	.word
+341.  11B FFFFFFFFFFFFFFFF  string:	.blkw	150
+342.  1B1 FFFFFFFFFFFFFFFF  strlen:	.blkw	1
+343.              	
+344.  1B2 FFFFFFFFFFFFFFFF  nextGrid:	.blkw	150
+345.              
+346.              
+347.              ;nextGen subroutine
+348.              	.equ	@,$400
+349.              	.equ	cGrid,5
+350.              	.equ	rows, 4
+351.              	.equ	cols, 3
+352.              	.equ	nGrid,2
+353.  400 FFF012  nextGen:	pshf
+354.  401 FFF008  	tsf
+355.  402 FFF011  	pshx
+356.  403 0A210A  	clr	i
+357.  404 01210A  rloop:	ldx	i
+358.  405 213004  	cmx !	rows	
+359.  406 4B24FF  	jge	end
+360.              	
+361.  407 0A210B  	clr	j
+362.  408 01210B  cloop:	ldx	j
+363.  409 213003  	cmx !	cols
+364.  40A 4B24FD  	jge	rloop_end
+365.  40B 0A2113  	clr	count
+366.  40C 01210A  	ldx	i
+367.  40D 150001  	sbx#	1
+368.  40E FFF003  	txa
+369.  40F 183003  	mul !	cols
+370.  410 FFF000  	tax
+371.  411 11210B  	adx	j
+372.  412 150001  	sbx#	1
+373.  413 052116  	stx	ind
+374.  414 009005  	lda& ! cGrid
+375.  415 042115  	sta	val
+376.  416 01210A  	ldx	i
+377.  417 210000  	cmx#	0
+378.  418 482422  	jeq	jump1
+379.  419 01210B  	ldx	j
+380.  41A 210000  	cmx#	0
+381.  41B 482422  	jeq	jump1
+382.  41C 002115  	lda	val
+383.  41D 200001  	cma#	1
+384.  41E 492422  	jne	jump1
+385.  41F 002113  	lda	count
+386.  420 100001  	ada#	1
+387.  421 042113  	sta	count
+388.              
+389.  422 01210A  jump1:	ldx	i
+390.  423 FFF003  	txa
+391.  424 183003  	mul !	cols
+392.  425 FFF000  	tax
+393.  426 11210B  	adx	j
+394.  427 110001  	adx#	1
+395.  428 052116  	stx	ind
+396.  429 009005  	lda& ! cGrid
+397.  42A 042115  	sta	val
+398.  42B 003003  	lda ! cols
+399.  42C FFF000  	tax
+400.  42D 150001  	sbx#	1
+401.  42E 052116  	stx	ind
+402.  42F 21210B  	cmx	j
+403.  430 482437  	jeq	jump2
+404.  431 002115  	lda	val
+405.  432 200001  	cma#	1
+406.  433 492437  	jne	jump2
+407.  434 002113  	lda	count
+408.  435 100001  	ada#	1
+409.  436 042113  	sta	count
+410.              	
+411.              
+412.  437 01210A  jump2:	ldx	i
+413.  438 150001  	sbx#	1
+414.  439 FFF003  	txa
+415.  43A 183003  	mul ! cols
+416.  43B FFF000  	tax
+417.  43C 11210B  	adx	j
+418.  43D 052116  	stx	ind
+419.  43E 009005  	lda& ! cGrid
+420.  43F 042115  	sta	val
+421.  440 01210A  	ldx	i
+422.  441 210000  	cmx#	0
+423.  442 482449  	jeq	jmp3
+424.  443 002115  	lda	val
+425.  444 200001  	cma#	1
+426.  445 492449  	jne	jmp3
+427.  446 002113  	lda	count
+428.  447 100001  	ada#	1
+429.  448 042113  	sta	count
+430.              
+431.  449 01210A  jmp3:	ldx	i
+432.  44A 150001  	sbx#	1
+433.  44B FFF003  	txa
+434.  44C 183003  	mul ! cols
+435.  44D FFF000  	tax
+436.  44E 11210B  	adx	j
+437.  44F 110001  	adx#	1
+438.  450 052116  	stx	ind
+439.  451 009005  	lda& ! cGrid
+440.  452 042115  	sta	val
+441.  453 01210A  	ldx	i
+442.  454 210000  	cmx#	0
+443.  455 482461  	jeq	jmp4
+444.  456 003003  	lda ! cols
+445.  457 FFF000  	tax
+446.  458 150001  	sbx#	1
+447.  459 21210B  	cmx	j
+448.  45A 482461  	jeq	jmp4
+449.  45B 002115  	lda	val
+450.  45C 200001  	cma#	1
+451.  45D 492461  	jne	jmp4
+452.  45E 002113  	lda	count
+453.  45F 100001  	ada#	1
+454.  460 042113  	sta	count
+455.              
+456.  461 01210A  jmp4:	ldx	i
+457.  462 FFF003  	txa
+458.  463 183003  	mul ! cols
+459.  464 FFF000  	tax
+460.  465 11210B  	adx	j
+461.  466 150001  	sbx#	1
+462.  467 052116  	stx	ind
+463.  468 009005  	lda& ! cGrid
+464.  469 042115  	sta	val
+465.  46A 01210B  	ldx	j
+466.  46B 210000  	cmx#	0
+467.  46C 482473  	jeq	jump5
+468.  46D 002115  	lda	val
+469.  46E 200001  	cma#	1
+470.  46F 492473  	jne	jump5
+471.  470 002113  	lda	count
+472.  471 100001  	ada#	1
+473.  472 042113  	sta	count
+474.              	
+475.  473 01210A  jump5:	ldx	i
+476.  474 110001  	adx#	1
+477.  475 FFF003  	txa
+478.  476 183003  	mul ! cols
+479.  477 FFF000  	tax
+480.  478 11210B  	adx	j
+481.  479 150001  	sbx#	1
+482.  47A 052116  	stx	ind
+483.  47B 009005  	lda& ! cGrid
+484.  47C 042115  	sta	val
+485.  47D 003004  	lda ! rows
+486.  47E FFF000  	tax
+487.  47F 150001  	sbx#	1
+488.  480 21210A  	cmx	i
+489.  481 48248B  	jeq	jump6
+490.  482 01210B  	ldx	j
+491.  483 210000  	cmx#	0
+492.  484 48248B  	jeq	jump6
+493.  485 002115  	lda	val
+494.  486 200001  	cma#	1
+495.  487 49248B  	jne	jump6
+496.  488 002113  	lda	count
+497.  489 100001  	ada#	1
+498.  48A 042113  	sta	count
+499.              	
+500.  48B 01210A  jump6:	ldx	i
+501.  48C 110001  	adx#	1
+502.  48D FFF003  	txa
+503.  48E 183003  	mul ! cols
+504.  48F FFF000  	tax
+505.  490 11210B  	adx	j
+506.  491 110001  	adx#	1
+507.  492 052116  	stx	ind
+508.  493 009005  	lda& ! cGrid
+509.  494 042115  	sta	val
+510.  495 003004  	lda !	rows
+511.  496 FFF000  	tax
+512.  497 150001  	sbx#	1
+513.  498 21210A  	cmx	i
+514.  499 4824A5  	jeq	jump7
+515.  49A 003003  	lda ! cols
+516.  49B FFF000  	tax
+517.  49C 150001  	sbx#	1
+518.  49D 21210B  	cmx	j
+519.  49E 4824A5  	jeq	jump7
+520.  49F 002115  	lda	val
+521.  4A0 200001  	cma#	1
+522.  4A1 4924A5  	jne	jump7
+523.  4A2 002113  	lda	count
+524.  4A3 100001  	ada#	1
+525.  4A4 042113  	sta	count
+526.              
+527.  4A5 01210A  jump7:	ldx	i
+528.  4A6 110001  	adx#	1
+529.  4A7 FFF003  	txa
+530.  4A8 183003  	mul ! cols
+531.  4A9 FFF000  	tax
+532.  4AA 11210B  	adx	j
+533.  4AB 052116  	stx	ind
+534.  4AC 009005  	lda& ! cGrid
+535.  4AD 042115  	sta	val
+536.  4AE 003004  	lda ! rows
+537.  4AF FFF000  	tax
+538.  4B0 150001  	sbx#	1
+539.  4B1 21210A  	cmx	i
+540.  4B2 4824B9  	jeq	jump8
+541.  4B3 002115  	lda	val
+542.  4B4 200001  	cma#	1
+543.  4B5 4924B9  	jne	jump8
+544.  4B6 002113  	lda	count
+545.  4B7 100001  	ada#	1
+546.  4B8 042113  	sta	count
+547.              
+548.  4B9 01210A  jump8:	ldx	i	; rule 1
+549.  4BA FFF003  	txa
+550.  4BB 183003  	mul !	cols
+551.  4BC FFF000  	tax
+552.  4BD 11210B  	adx	j
+553.  4BE 052117  	stx	index
+554.  4BF 009005  	lda& ! cGrid
+555.  4C0 042115  	sta	val
+556.  4C1 200001  	cma#	1
+557.  4C2 4924CB  	jne	jump9
+558.  4C3 002113  	lda	count
+559.  4C4 200002  	cma#	2
+560.  4C5 4B24CB  	jge	jump9
+561.  4C6 012117  	ldx	index
+562.  4C7 009002  	lda& ! nGrid
+563.  4C8 000000  	lda#	0
+564.  4C9 049002  	sta& ! nGrid
+565.  4CA 4024FB  	jmp	cloop_end
+566.              
+567.  4CB 012117  jump9:	ldx	index	;rule 2
+568.  4CC 009005  	lda& ! cGrid
+569.  4CD 200001  	cma#	1
+570.  4CE 4924DE  	jne	jump10
+571.  4CF 002113  	lda	count
+572.  4D0 200002  	cma#	2
+573.  4D1 4924D7  	jne	equal
+574.  4D2 012117  	ldx	index
+575.  4D3 009002  	lda& ! nGrid
+576.  4D4 000001  	lda#	1
+577.  4D5 049002  	sta& ! nGrid
+578.  4D6 4024FB  	jmp	cloop_end
+579.              
+580.              
+581.  4D7 200003  equal:	cma#	3	
+582.  4D8 4924DE  	jne	jump10
+583.  4D9 012117  	ldx	index
+584.  4DA 009002  	lda& ! nGrid
+585.  4DB 000001  	lda#	1
+586.  4DC 049002  	sta& ! nGrid
+587.  4DD 4024FB  	jmp	cloop_end
+588.              
+589.  4DE 012117  jump10:	ldx	index	;rule 3
+590.  4DF 009005  	lda& ! cGrid
+591.  4E0 200001  	cma#	1
+592.  4E1 4924EA  	jne	jump11
+593.  4E2 002113  	lda 	count
+594.  4E3 200003  	cma#	3
+595.  4E4 4C24EA  	jle	jump11
+596.  4E5 012117  	ldx	index
+597.  4E6 009002  	lda& ! nGrid
+598.  4E7 000000  	lda#	0
+599.  4E8 049002  	sta& ! nGrid
+600.  4E9 4024FB  	jmp	cloop_end
+601.              
+602.  4EA 012117  jump11:	ldx	index	;rule 4
+603.  4EB 009005  	lda& ! cGrid
+604.  4EC 200000  	cma#	0
+605.  4ED 4924F6  	jne	jump12
+606.  4EE 002113  	lda	count
+607.  4EF 200003  	cma#	3
+608.  4F0 4924F6  	jne	jump12
+609.  4F1 012117  	ldx	index
+610.  4F2 009002  	lda& ! nGrid
+611.  4F3 000001  	lda#	1
+612.  4F4 049002  	sta& ! nGrid
+613.  4F5 4024FB  	jmp	cloop_end
+614.              
+615.  4F6 012117  jump12:	ldx	index
+616.  4F7 009002  	lda& ! nGrid
+617.  4F8 000000  	lda#	0
+618.  4F9 049002  	sta& ! nGrid
+619.  4FA 4024FB  	jmp	cloop_end
+620.  4FB 1B210B  cloop_end:	inc	j
+621.  4FC 402408  	jmp	cloop
+622.              
+623.  4FD 1B210A  rloop_end:	inc	i
+624.  4FE 402404  	jmp	rloop
+625.              
+626.              end:
+627.  4FF FFF014  	popx
+628.  500 FFF015  	popf
+629.  501 FFF040  	rtn
+630.              
+631.              
+632.              
+633.              			
+
+                     SYMBOL TABLE CONTENTS
+
+00010E = A               0000D1 = ANSWER          00000C = ANSWER_LEN      
+000092 = CELOOP          000005 = CGRID           000408 = CLOOP           
+0004FB = CLOOP_END       000004 = CO              000109 = COL             
+000003 = COLS            000113 = COUNT           000038 = COUNTLOOP       
+000317 = CRT_DATA        000002 = CURR            0000DE = CURRGRID        
+000119 = DEAD            0000C0 = ENABLE_AND_RESET0000D0 = ENABLE_RESET_AND_START
+0004FF = END             0000D5 = ENDPROGRAM      00000F = ENDPROGRAM_LEN  
+00007F = END_KEY         000084 = END_PROGRAM     0004D7 = EQUAL           
+00004D = GCLOOP          00000D = GEN_LEN         000E01 = GET_NUM         
+000049 = GRLOOP          000063 = GRLOOP_END      00010D = H               
+00006D = HUMP1           0000A9 = HUMP2           00010A = I               
+000116 = IND             000117 = INDEX           0000DB = INPUT           
+00010B = J               000449 = JMP3            000461 = JMP4            
+000422 = JUMP1           0004DE = JUMP10          0004EA = JUMP11          
+0004F6 = JUMP12          000437 = JUMP2           000028 = JUMP3           
+000024 = JUMP4           000473 = JUMP5           00048B = JUMP6           
+0004A5 = JUMP7           0004B9 = JUMP8           0004CB = JUMP9           
+000060 = JUP3            00005C = JUP4            000066 = JUP5            
+00010C = K               000000 = KBD_CNTL        000001 = KBD_DATA        
+000040 = KBD_FLUSH       00007B = KEYISR          00011A = LEN             
+000118 = LIVE            0000A4 = LOOP            000111 = M               
+00000C = MAIN            000079 = MAINLOOP        000112 = N               
+000005 = NEXT            000400 = NEXTGEN         0001B2 = NEXTGRID        
+000002 = NGRID           000015 = OCLOOP          000011 = ORLOOP          
+00002B = ORLOOP_END      000E06 = PUT_NL          000E00 = PUT_NUM         
+000E05 = PUT_STR         00002F = QLOOP           0000BD = QUESTION        
+00003C = QUESTION_LEN    0000DD = RELOAD          00008E = RELOOP          
+00009E = RELOOP_END      000089 = REPEATGEN       000040 = RESET_READY_BIT 
+0000A0 = RETURN          000404 = RLOOP           0004FD = RLOOP_END       
+000003 = RO              000108 = ROW             000004 = ROWS            
+000000 = STACK           000000 = START           0000B8 = STARTGEN        
+0000AF = STARTGRID       000010 = START_AFTER_LOAD000019 = START_LEN       
+00011B = STRING          0001B1 = STRLEN          0000DC = TEMP            
+0000A4 = TIMEISR         000030 = TIME_CNTL       000034 = TIME_COUNT      
+000030 = TIME_STAT       000031 = TIME_VALU       000115 = VAL             
+000114 = VALUE           0000DA = X               00010F = Y               
+000110 = Z               

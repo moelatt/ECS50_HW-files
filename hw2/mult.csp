@@ -1,0 +1,64 @@
+	.equ	@,$000
+	lda	M
+	cma#	0
+	jlt	jump
+	lda	M
+	sta	x
+	jmp	jump2
+
+
+
+jump:	lda	M
+	mul	y
+	sta	x
+	jmp	jump2
+
+
+jump2:	lda	i
+loops:	cma	x
+	jge	jump4
+	lda	sum
+	ada	N
+	sta	sum
+	lda	i
+	ada#	1
+	sta	i
+	jmp	loops
+
+jump4:	lda	M
+	cma#	0
+	jgt	jump3
+	lda	N
+	cma#	0
+	jgt	jump6
+	jmp	jump5
+	
+	
+jump5:	lda	sum
+	mul	y
+	sta	result
+	jmp	end
+	
+jump6:	lda 	M
+	cma#	0
+	jlt	jump5
+
+	
+jump3:	lda	sum
+	sta	result
+	jmp	end
+
+	
+
+end:	hlt
+	.equ	@,$100
+i:	.word	$000
+x:	.word	$000
+y:	.word	-1
+sum:	.word	$000
+M:	.word	6
+N:	.word	-6
+result:	.word	$000
+
+
+	

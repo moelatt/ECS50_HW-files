@@ -1,0 +1,101 @@
+LINE ADDR CONTENTS SOURCE LINE
+  1.              ;main program
+  2.              	.equ	@,$000
+  3.              	.equ	stack,0
+  4.              
+  5.  000 020000  	lds#	stack
+  6.  001 030000  	ldf#	0
+  7.              
+  8.  002 080008  	psh#	string
+  9.  003 080019  	psh#	strlen
+ 10.  004 080100  	psh#	Cstring
+ 11.  005 412020  	jsr	title
+ 12.  006 120003  	ads#	3
+ 13.  007 FFFFFF  	hlt
+ 14.              
+ 15.              
+ 16.  008 202068  string:	.char	'  heLLO    woRLD  @1234$$', strlen
+      009 654C4C
+      00A 4F2020
+      00B 202077
+      00C 6F524C
+      00D 442020
+      00E 403132
+      00F 333424
+      010 242020
+ 17.              	.equ @,$100
+ 18.  100 FFFFFF  Cstring:	.blkw	25, -1	
+ 19.  119 000000  i:	.word	0
+ 20.              
+ 21.              ;subroutine
+ 22.              	.equ	@,$020
+ 23.              	.equ	str, 4
+ 24.              	.equ	length, 3
+ 25.              	.equ	Cstr, 2
+ 26.              
+ 27.  020 FFF012  title:	pshf
+ 28.  021 FFF008  	tsf
+ 29.  022 FFF011  	pshx
+ 30.              	
+ 31.  023 012119  	ldx	i
+ 32.  024 507004  	ldc* ! str
+ 33.  025 200020  	cma#	' '
+ 34.  026 48203C   	jeq	jump2
+ 35.  027 200061  	cma#	'a'
+ 36.  028 4A2046  	jlt	jump3
+ 37.  029 20007A  	cma#	'z'
+ 38.  02A 4D2046  	jgt	jump3
+ 39.  02B 140020  	sba#	'a' - 'A' 	;lower to upper
+ 40.  02C 517002  	stc* ! Cstr
+ 41.  02D 402048  	jmp	jump1
+ 42.              
+ 43.              
+ 44.              
+ 45.              
+ 46.  02E 507004  loop:	ldc* ! str
+ 47.  02F 200020  	cma#	' '
+ 48.  030 48203C  	jeq	jump2
+ 49.              	
+ 50.  031 200061  	cma#	'a'
+ 51.  032 4A2037  	jlt	next
+ 52.  033 20007A  	cma#	'z'
+ 53.  034 4D2037  	jgt	next
+ 54.  035 517002  	stc* ! Cstr
+ 55.  036 402048  	jmp	jump1
+ 56.              
+ 57.  037 200041  next:	cma#	'A'
+ 58.  038 4A2046  	jlt	jump3
+ 59.  039 100020  	ada#	'a' - 'A'	;upper to lower
+ 60.  03A 517002  	stc* ! Cstr
+ 61.  03B 402048  	jmp	jump1
+ 62.              
+ 63.              
+ 64.              
+ 65.  03C 517002  jump2:	stc* ! Cstr
+ 66.  03D 110001  	adx#	1
+ 67.  03E 507004  	ldc* ! str
+ 68.  03F 200020  	cma#	' '
+ 69.  040 48203C  	jeq	jump2
+ 70.  041 200061  	cma#	'a'
+ 71.  042 4A2046  	jlt	jump3
+ 72.  043 20007A  	cma#	'z'
+ 73.  044 4B2046  	jge	jump3
+ 74.              
+ 75.  045 140020  	sba#	'a' - 'A' 	; lower to upper
+ 76.  046 517002  jump3:	stc* ! Cstr
+ 77.  047 402048  	jmp 	jump1
+ 78.              	
+ 79.              
+ 80.  048 603003  jump1:	aoc !	length
+ 81.  049 4A202E  	jlt	loop
+ 82.  04A FFF014  	popx
+ 83.  04B FFF015  	popf
+ 84.  04C FFF040  	rtn
+
+                     SYMBOL TABLE CONTENTS
+
+000002 = CSTR            000100 = CSTRING         000119 = I               
+000048 = JUMP1           00003C = JUMP2           000046 = JUMP3           
+000003 = LENGTH          00002E = LOOP            000037 = NEXT            
+000000 = STACK           000004 = STR             000008 = STRING          
+000019 = STRLEN          000020 = TITLE           

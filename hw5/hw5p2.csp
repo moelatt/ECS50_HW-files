@@ -1,0 +1,84 @@
+;main program
+	.equ	@,$000
+	.equ	stack,0
+
+	lds#	stack
+	ldf#	0
+
+	psh#	string
+	psh#	strlen
+	psh#	Cstring
+	jsr	title
+	ads#	3
+	hlt
+
+
+string:	.char	'  heLLO    woRLD  @1234$$', strlen
+	.equ @,$100
+Cstring:	.blkw	25, -1	
+i:	.word	0
+
+;subroutine
+	.equ	@,$020
+	.equ	str, 4
+	.equ	length, 3
+	.equ	Cstr, 2
+
+title:	pshf
+	tsf
+	pshx
+	
+	ldx	i
+	ldc* ! str
+	cma#	' '
+ 	jeq	jump2
+	cma#	'a'
+	jlt	jump3
+	cma#	'z'
+	jgt	jump3
+	sba#	'a' - 'A' 	;lower to upper
+	stc* ! Cstr
+	jmp	jump1
+
+
+
+
+loop:	ldc* ! str
+	cma#	' '
+	jeq	jump2
+	
+	cma#	'a'
+	jlt	next
+	cma#	'z'
+	jgt	next
+	stc* ! Cstr
+	jmp	jump1
+
+next:	cma#	'A'
+	jlt	jump3
+	ada#	'a' - 'A'	;upper to lower
+	stc* ! Cstr
+	jmp	jump1
+
+
+
+jump2:	stc* ! Cstr
+	adx#	1
+	ldc* ! str
+	cma#	' '
+	jeq	jump2
+	cma#	'a'
+	jlt	jump3
+	cma#	'z'
+	jge	jump3
+
+	sba#	'a' - 'A' 	; lower to upper
+jump3:	stc* ! Cstr
+	jmp 	jump1
+	
+
+jump1:	aoc !	length
+	jlt	loop
+	popx
+	popf
+	rtn

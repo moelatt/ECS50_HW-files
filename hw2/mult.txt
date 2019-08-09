@@ -1,0 +1,27 @@
+Question 3-5
+
+int main(){
+  int M = 4;
+  int N = 5;
+  int sum = 0;
+  int result = 0;
+  int x;
+  if(M < 0){
+    x = - 1 * M;
+  }
+  else{
+    x  = M;
+  }
+
+  int i = 0;
+   while(i < x) {
+    sum = sum + N;
+    i = i + 1;
+  }
+  if((M < 0 && N < 0) || (M < 0)){
+    result = -1 * sum;
+  }
+  else {
+    result = sum;
+  }
+}

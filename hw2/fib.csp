@@ -1,0 +1,25 @@
+	.equ	@,$000
+	lda	i
+loop:	cma 	N	; compare to i
+	jge  	end	; jump if greater or equal		
+	lda  	fib1	; load fib1
+	ada  	fib2	; fib1 + fib2
+	sta  	FIBON	; store in fib
+	lda  	fib1	; load fib1
+	sta  	fib2	; fib2 = fib1
+	lda  	FIBON	; load fib
+	sta  	fib1	; fib1 = fib
+	lda  	i
+	ada#	$001
+	sta	i
+	jmp 	loop
+
+end:	hlt
+	.equ	@,$100
+
+
+fib1:	.word	$000	; fib1
+fib2:	.word	$001	; fib2
+i:	.word	$000	; i
+N:	.word	$008	; N
+FIBON:	.word	$000	; result

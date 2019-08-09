@@ -1,0 +1,36 @@
+	.equ	@,$000
+	.equ	arr_length, 6
+	ldx	index	; load index
+loop:	cmx#	arr_length	; index ? arr_length
+	jge	end	; index >= arr_length go to end
+	lda+	x	; ACC = x[i]
+	cma+	y	; x[i] ? y[i]
+	jle	jump	; x[i] <= y[i] go to jump
+	lda#	1	; ACC = 1
+	inc	index	; index = index + 1
+	ldx	index	; load index
+	jmp	loop	; go to loop
+	
+
+jump:	lda#	0	; ACC = 0
+	jmp	end	; go to loop
+
+end:	hlt
+	.equ	@,$100
+numArr:	.word arr_length
+x:	.word 95
+	.word	1002
+	.word	233
+	.word	-137
+	.word	6332	
+	.word	-331
+
+y:	.word	90	
+	.word	102	
+	.word	109	
+	.word	-1378	
+	.word	6332	
+	.word	-3319
+
+index:	.word	0
+	

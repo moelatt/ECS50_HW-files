@@ -1,0 +1,62 @@
+	.equ	@,$000
+	lda	fS
+	lda	cS
+	ada	eS
+	sta	fS
+	cma#	60
+	jgt	jump1
+
+lp1:	lda	fM
+	ada	cM
+	ada	eM
+	sta	fM
+	cma#	60
+	jgt	jump2
+
+lp2:	lda	fH
+	ada	cH
+	ada	eH
+	sta	fH
+	cma#	24
+	jgt	jump3
+lp3:	jmp	end
+
+
+jump1:	lda	fM
+	lda	fS
+	div#	60
+	sta	fM
+	lda	fS
+	mod#	60
+	sta	fS
+	jmp	lp1
+
+
+jump2:	lda 	fH
+	lda	fM
+	div#	60
+	sta	fH
+	lda	fM
+	mod#	60
+	sta	fM
+	jmp	lp2
+
+
+jump3:	lda	fH
+	mod#	24
+	sta	fH
+	jmp	end
+end:	hlt
+	.equ	@,$100
+
+cH:	.word 25
+cM:	.word	2
+cS:	.word	58
+
+eH:	.word	25
+eM:	.word	59
+eS:	.word	3
+
+fH:	.word $000
+fM:	.word $000
+fS:	.word $000
